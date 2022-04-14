@@ -5,21 +5,16 @@
 #include <unistd.h>
 
 
-int main(void)
-{
-        while (true)
-    {
-        int x = rand() % 30;
+int main(void) {
+    while (true) {
+        int x = rand() % 10;
 
-        if (x < 9)
-        {
-            printf("\033[92m %d", x);
+        if (x < 5) {
+            printf("\033[92m%d", x);
         }
-        else
-        {
-            printf("\033[92m %c", ' ');
+        else {
+            printf("\033[0;30m%c", x);
         }        
     }
-    
     return 0;
 }
