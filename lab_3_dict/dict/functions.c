@@ -50,9 +50,12 @@ unsigned long hash_function(char *str, int table_size) {
 }
 
 void insert(HashTable *table, char* key, char* value) {
-    hash_item *item = create_hash_item(key, value);
     int index = hash_function(key, table->size);
+    _item_insert(table, index, key, value);
+}
 
+void _item_insert(HashTable *table, int index, char* key, char* value) {
+    hash_item *item = create_hash_item(key, value);
     if (table->items[index] == NULL) {
         table->items[index] = item;
         table->full_items++;
@@ -102,7 +105,7 @@ void delete(HashTable *table, char* key){
             if (table->items[index] == NULL) {
                 table->full_items--;
             }
-            printf("Success. Key '%s' was deleted", key);
+            printf("Success. Key '%s' was deleted\n", key);
             return;
         }
         prev_item = item;

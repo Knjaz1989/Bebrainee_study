@@ -34,6 +34,7 @@ void _delete_hash_item(hash_item *item);
 HashTable *create_table(int size);
 void delete_table(HashTable* table);
 void insert(HashTable* table, char *key, char *value);
+void _item_insert(HashTable *table, int index, char* key, char* value);
 char *get_value(HashTable* table, char* key);
 void delete(HashTable* table, char* key);
 unsigned long hash_function(char *str, int table_size);
