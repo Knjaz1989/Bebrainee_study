@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "nlohmann/json.hpp"
+#include "json-c/json.h"
 
 
 typedef struct User {
@@ -12,11 +12,21 @@ typedef struct User {
     char *surname;
     int age;
     char *address;
-    void (*export_data)(char *type, struct User *this);
+    struct Dump *dump;
 } User;
 
-void export_data(char *type, User *this);
-User *user_cons(char *name, char *surname, int age, char *address);
 
+typedef struct Dump {
+    void (*xml)(struct User *this);
+    void (*json)(struct User *this);
+    void (*yaml)(struct User *this);
+} Dump;
+
+
+User *user_cons(char *name, char *surname, int age, char *address);
+static Dump *dump_constructor();
+static void xml(User *this);
+static void json(User *this);
+static void yaml(User *this);
 
 #endif //OOP_HEADER_H
