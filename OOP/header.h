@@ -12,21 +12,30 @@ typedef struct User {
     char *surname;
     int age;
     char *address;
-    struct Dump *dump;
 } User;
 
+typedef struct Yaml {
+    void (*dump)(User *user);
+} Yaml;
 
-typedef struct Dump {
-    void (*xml)(struct User *this);
-    void (*json)(struct User *this);
-    void (*yaml)(struct User *this);
-} Dump;
+typedef struct Json {
+    void (*dump)(User *user);
+} Json;
 
+typedef struct Xml {
+    void (*dump)(User *user)
+} Xml;
 
-User *user_cons(char *name, char *surname, int age, char *address);
-static Dump *dump_constructor();
-static void xml(User *this);
-static void json(User *this);
-static void yaml(User *this);
+User *user_cons (char *name, char *surname, int age, char *address);
+User **list_of_users ();
+
+Yaml *yaml_constructor ();
+Json *json_constructor ();
+Xml *xml_constructor ();
+
+static char *generate_name(User *user, char *type);
+static void write_to_yaml (User *user);
+static void write_to_json (User *user);
+static void write_to_xml (User *user);
 
 #endif //OOP_HEADER_H
