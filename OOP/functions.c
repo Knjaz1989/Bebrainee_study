@@ -96,3 +96,16 @@ Xml *xml_constructor () {
     type->dump = write_to_xml;
     return type;
 }
+
+Type **type_list_constructor () {
+    Type **list = (Type**) malloc(sizeof(Type*));
+    list[0] = malloc(sizeof(Yaml ));
+    list[0]->dump = write_to_yaml;
+    list[1] = malloc(sizeof(Json ));
+    list[1]->dump = write_to_json;
+    list[2] = malloc(sizeof(Xml ));
+    list[2]->dump = write_to_xml;
+    return list;
+}
+
+
