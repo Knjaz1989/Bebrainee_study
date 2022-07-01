@@ -6,18 +6,12 @@
 
 int main(int argc, char **argv) {
 //    mkdir("Accounts", 0777);
-    if (strcmp(argv[1], "create-user") == 0 && argc == 7) {
-        char *shortopts = "login:password:name:surname:age:";
-        int opt = getopt_long_only(argc, argv, shortopts, );
-
-
-
-
-
-        add_user_to_file(argv);
+    NodeList *list;
+    if (strcmp(argv[1], "create-user") == 0 && (list = check_create_user_argv(argc, argv))) {
+        add_user_to_file(list);
     }
-    else if (strcmp(argv[1], "read-user") == 0) {
-        read_user_from_file("star", "111");
+    else if (strcmp(argv[1], "read-user") == 0 && (list = check_get_user_argv(argc, argv))) {
+        read_user_from_file(list);
     }
     return 0;
 }
