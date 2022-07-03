@@ -13,5 +13,8 @@ int main(int argc, char **argv) {
     else if (strcmp(argv[1], "read-user") == 0 && (list = check_get_user_argv(argc, argv))) {
         read_user_from_file(list);
     }
+    else if (strcmp(argv[1], "send-message") == 0 && (list = check_send_message_argv(argc, argv))) {
+        send_message (list);
+    }
     return 0;
 }
