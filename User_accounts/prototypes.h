@@ -32,11 +32,7 @@ static Node *node_constructor (char *key, char *value);
 NodeList *nodeList_constructor ();
 static void add_node (NodeList *nodeList, Node *node);
 static void delete_nodeList (NodeList *nodeList);
-static NodeList *check_create_user_argv (int argc, char **argv);
-static NodeList *check_get_user_argv (int argc, char **argv);
-static NodeList *check_send_message_argv (int argc, char **argv);
-static NodeList *check_read_mailbox_argv(int argc, char **argv);
-static NodeList *check_read_mail_argv(int argc, char **argv);
+NodeList *get_argv(int argc, char **argv, char *type);
 
 void add_user_to_file (NodeList *nodeList);
 void read_user_from_file (NodeList *nodeList);
@@ -51,5 +47,7 @@ static void create_file ();
 static int check_user (NodeList *nodeList);
 static char *create_name_file (char *acc_name, char *prefix);
 static json_object *check_login (char *user_login);
+static void delete_ind(char **argvs, int index);
+static int check_argv (NodeList *nodeList, char *type);
 
 #endif //USER_AUTHORIZATION_PROTOTYPES_H

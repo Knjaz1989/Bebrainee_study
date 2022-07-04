@@ -72,7 +72,63 @@ static void delete_nodeList (NodeList *nodeList) {
 }
 
 
-static NodeList *check_create_user_argv (int argc, char **argv) {
+static void delete_ind(char **argvs, int index) {
+    int j = index;
+    while (argvs[j] != NULL) {
+        argvs[j] = argvs[j + 1];
+        j++;
+    }
+}
+
+
+static int check_argv (NodeList *nodeList, char *type) {
+    char **argvs = (char **)malloc(5 * sizeof(char[15]));
+    if (strcmp(type, "create") == 0) {
+        argvs[0] = "login";
+        argvs[1] = "password";
+        argvs[2] = "name";
+        argvs[3] = "lastname";
+        argvs[4] = "age";
+    }
+    if (strcmp(type, "read-user") == 0 || strcmp(type, "read-mailbox") == 0) {
+        argvs[0] = "login";
+        argvs[1] = "password";
+    }
+    if (strcmp(type, "send") == 0) {
+        argvs[0] = "login";
+        argvs[1] = "password";
+        argvs[2] = "destination";
+        argvs[3] = "message";
+    }
+    if (strcmp(type, "read-mail") == 0) {
+        argvs[0] = "login";
+        argvs[1] = "password";
+        argvs[2] = "message-id";
+    }
+    Node *tmp = nodeList->head;
+
+    while (tmp) {
+        int i = 0;
+        while (argvs[i]) {
+            if (strcmp(argvs[i], tmp->key) == 0) {
+                delete_ind(argvs, i);
+                break;
+            }
+            i++;
+        }
+        tmp = tmp->next;
+    }
+    if (strlen(argvs)) {
+        free(argvs);
+        puts("Wrong arguments");
+        return 1;
+    }
+    free(argvs);
+    return 0;
+}
+
+
+NodeList *get_argv (int argc, char **argv, char *type) {
     NodeList *node_list = nodeList_constructor();
     struct option long_options[] = {
             {"login", 1, NULL, 'l'},
@@ -80,6 +136,9 @@ static NodeList *check_create_user_argv (int argc, char **argv) {
             {"name", 1, NULL, 'n'},
             {"lastname", 1, NULL, 's'},
             {"age", 1, NULL, 'a'},
+            {"destination", 1, NULL, 'd'},
+            {"message", 1, NULL, 'm'},
+            {"message-id", 1, NULL, 'i'},
             {0, 0, 0, 0}
     };
     opterr = 0; // not to get errors if arg doesn't exist
@@ -93,136 +152,15 @@ static NodeList *check_create_user_argv (int argc, char **argv) {
             case 'n': add_node(node_list, node_constructor("name", optarg)); break;
             case 's': add_node(node_list, node_constructor("lastname", optarg)); break;
             case 'a': add_node(node_list, node_constructor("age", optarg)); break;
-            case '?': printf("%s is invalid", argv[optind - 1]); delete_nodeList(node_list); return NULL;
-            case ':': printf("%s has no value", long_options[option_index + 1].name); delete_nodeList(node_list);
-                return NULL;
-        }
-    }
-    int count = 5 - node_list->length;
-    if (count) {
-        printf("You have missed %d arguments", count);
-        delete_nodeList(node_list);
-        return NULL;
-    }
-    return node_list;
-}
-
-
-static NodeList *check_get_user_argv (int argc, char **argv) {
-    NodeList *node_list = nodeList_constructor();
-    struct option long_options[] = {
-            {"login", 1, NULL, 'l'},
-            {"password", 1, NULL, 'p'},
-            {0, 0, 0, 0}
-    };
-    opterr = 0; // not to get errors if arg doesn't exist
-    int opt;
-    int option_index; // buffer gor option index
-    while ((opt = getopt_long(argc, argv, "", long_options, &option_index)) != EOF) {
-        switch (opt) {
-            case 'l': add_node(node_list, node_constructor("login", optarg)); break;
-            case 'p': add_node(node_list, node_constructor("password", optarg)); break;
-            case '?': printf("%s is invalid", argv[optind - 1]); delete_nodeList(node_list); return NULL;
-            case ':': printf("%s has no value", long_options[option_index + 1].name); delete_nodeList(node_list);
-                return NULL;
-        }
-    }
-    int count = 2 - node_list->length;
-    if (count) {
-        printf("You have missed %d arguments", count);
-        delete_nodeList(node_list);
-        return NULL;
-    }
-    return node_list;
-}
-
-
-static NodeList *check_send_message_argv (int argc, char **argv) {
-    NodeList *node_list = nodeList_constructor();
-    struct option long_options[] = {
-            {"login", 1, NULL, 'l'},
-            {"password", 1, NULL, 'p'},
-            {"destination", 1, NULL, 'd'},
-            {"message", 1, NULL, 'm'},
-            {0, 0, 0, 0}
-    };
-    opterr = 0; // not to get errors if arg doesn't exist
-    int opt;
-    int option_index; // buffer gor option index
-    while ((opt = getopt_long(argc, argv, "", long_options, &option_index)) != EOF) {
-        switch (opt) {
-            case 'l': add_node(node_list, node_constructor("login", optarg)); break;
-            case 'p': add_node(node_list, node_constructor("password", optarg)); break;
             case 'd': add_node(node_list, node_constructor("destination", optarg)); break;
             case 'm': add_node(node_list, node_constructor("message", optarg)); break;
+            case 'i': add_node(node_list, node_constructor("message-id", optarg)); break;
             case '?': printf("%s is invalid", argv[optind - 1]); delete_nodeList(node_list); return NULL;
             case ':': printf("%s has no value", long_options[option_index + 1].name); delete_nodeList(node_list);
                 return NULL;
         }
     }
-    int count = 4 - node_list->length;
-    if (count) {
-        printf("You have missed %d arguments", count);
-        delete_nodeList(node_list);
-        return NULL;
-    }
-    return node_list;
-}
-
-
-static NodeList *check_read_mailbox_argv(int argc, char **argv) {
-    NodeList *node_list = nodeList_constructor();
-    struct option long_options[] = {
-            {"login", 1, NULL, 'l'},
-            {"password", 1, NULL, 'p'},
-            {0, 0, 0, 0}
-    };
-    opterr = 0; // not to get errors if arg doesn't exist
-    int opt;
-    int option_index; // buffer gor option index
-    while ((opt = getopt_long(argc, argv, "", long_options, &option_index)) != EOF) {
-        switch (opt) {
-            case 'l': add_node(node_list, node_constructor("login", optarg)); break;
-            case 'p': add_node(node_list, node_constructor("password", optarg)); break;
-            case '?': printf("%s is invalid", argv[optind - 1]); delete_nodeList(node_list); return NULL;
-            case ':': printf("%s has no value", long_options[option_index + 1].name); delete_nodeList(node_list);
-                return NULL;
-        }
-    }
-    int count = 2 - node_list->length;
-    if (count) {
-        printf("You have missed %d arguments", count);
-        delete_nodeList(node_list);
-        return NULL;
-    }
-    return node_list;
-}
-
-
-static NodeList *check_read_mail_argv(int argc, char **argv) {
-    NodeList *node_list = nodeList_constructor();
-    struct option long_options[] = {
-            {"login", 1, NULL, 'l'},
-            {"password", 1, NULL, 'p'},
-            {"message-id", 1, NULL, 'm'},
-            {0, 0, 0, 0}
-    };
-    opterr = 0; // not to get errors if arg doesn't exist
-    int opt;
-    int option_index; // buffer gor option index
-    while ((opt = getopt_long(argc, argv, "", long_options, &option_index)) != EOF) {
-        switch (opt) {
-            case 'l': add_node(node_list, node_constructor("login", optarg)); break;
-            case 'p': add_node(node_list, node_constructor("password", optarg)); break;
-            case 'm': add_node(node_list, node_constructor("message-id", optarg)); break;
-            case '?': printf("%s is invalid", argv[optind - 1]); delete_nodeList(node_list); return NULL;
-            case ':': printf("%s has no value", long_options[option_index + 1].name); delete_nodeList(node_list);
-                return NULL;
-        }
-    }
-    int count = 3 - node_list->length;
-    if (count) {
-        printf("You have missed %d arguments", count);
+    if (check_argv(node_list, type)) {
         delete_nodeList(node_list);
         return NULL;
     }
@@ -451,7 +389,7 @@ void read_mail (NodeList *nodeList) {
     json_object *message = json_object_array_get_idx(object_list, 1);
     const char *message_str = json_object_get_string(message);
     printf("from=%s\nmessage=%s\n", from_str, message_str);
-    json_object_array_del_idx(list, index, 1);
+    json_object_array_del_idx(list, index - 1, 1);
     json_object_to_file(filename, list);
     free(filename);
 }
