@@ -290,6 +290,7 @@ void add_user_to_file (NodeList *nodeList) {
     }
     json_object_object_add(dict, login, new_dict);
     json_object_to_file(ACC_FILE, dict);
+    printf("User with login '%s' was created", login);
     free(nodeList);
     free(hash_password);
 }
