@@ -170,6 +170,66 @@ static NodeList *check_send_message_argv (int argc, char **argv) {
 }
 
 
+static NodeList *check_read_mailbox_argv(int argc, char **argv) {
+    NodeList *node_list = nodeList_constructor();
+    struct option long_options[] = {
+            {"login", 1, NULL, 'l'},
+            {"password", 1, NULL, 'p'},
+            {0, 0, 0, 0}
+    };
+    opterr = 0; // not to get errors if arg doesn't exist
+    int opt;
+    int option_index; // buffer gor option index
+    while ((opt = getopt_long(argc, argv, "", long_options, &option_index)) != EOF) {
+        switch (opt) {
+            case 'l': add_node(node_list, node_constructor("login", optarg)); break;
+            case 'p': add_node(node_list, node_constructor("password", optarg)); break;
+            case '?': printf("%s is invalid", argv[optind - 1]); delete_nodeList(node_list); return NULL;
+            case ':': printf("%s has no value", long_options[option_index + 1].name); delete_nodeList(node_list);
+                return NULL;
+        }
+    }
+    int count = 2 - node_list->length;
+    if (count) {
+        printf("You have missed %d arguments", count);
+        delete_nodeList(node_list);
+        return NULL;
+    }
+    return node_list;
+}
+
+
+static NodeList *check_read_mail_argv(int argc, char **argv) {
+    NodeList *node_list = nodeList_constructor();
+    struct option long_options[] = {
+            {"login", 1, NULL, 'l'},
+            {"password", 1, NULL, 'p'},
+            {"message-id", 1, NULL, 'm'},
+            {0, 0, 0, 0}
+    };
+    opterr = 0; // not to get errors if arg doesn't exist
+    int opt;
+    int option_index; // buffer gor option index
+    while ((opt = getopt_long(argc, argv, "", long_options, &option_index)) != EOF) {
+        switch (opt) {
+            case 'l': add_node(node_list, node_constructor("login", optarg)); break;
+            case 'p': add_node(node_list, node_constructor("password", optarg)); break;
+            case 'm': add_node(node_list, node_constructor("message-id", optarg)); break;
+            case '?': printf("%s is invalid", argv[optind - 1]); delete_nodeList(node_list); return NULL;
+            case ':': printf("%s has no value", long_options[option_index + 1].name); delete_nodeList(node_list);
+                return NULL;
+        }
+    }
+    int count = 3 - node_list->length;
+    if (count) {
+        printf("You have missed %d arguments", count);
+        delete_nodeList(node_list);
+        return NULL;
+    }
+    return node_list;
+}
+
+
 static void create_file (char *file_name, char *type) {
     if (strcmp(type, "dict") == 0) {
         json_object *dict = json_object_new_object();
@@ -339,9 +399,59 @@ void send_message (NodeList *nodeList) {
     if (check_file(filename)) {
         create_file(filename, "list");
     }
-    json_object *list = json_object_from_file(filename);
+    json_object *all_lists = json_object_from_file(filename);
+    json_object *new_list = json_object_new_array();
+    json_object *from = json_object_new_string(nodeList->head->value);
+    json_object_array_add(new_list, from);
     json_object *message = json_object_new_string(nodeList->last->value);
-    json_object_array_add(list, message);
+    json_object_array_add(new_list, message);
+    json_object_array_add(all_lists, new_list);
+    json_object_to_file(filename, all_lists);
+    free(filename);
+}
+
+
+void read_mailbox (NodeList *nodeList) {
+    char *filename = create_name_file(nodeList->head->value, "_getting.json");
+    if (check_user(nodeList)) {
+        return;
+    }
+    json_object *list = json_object_from_file(filename);
+    unsigned int count = json_object_array_length(list);
+    printf("You have %d unread messages\n", count);
+    for (int i = 0; i < count; i++) {
+        json_object *object = json_object_array_get_idx(list, i);
+        json_object *from = json_object_array_get_idx(object, 0);
+        const char *from_str = json_object_get_string(from);
+        printf("id=%d, from=%s\n", i + 1, from_str);
+    }
+    free(filename);
+}
+
+
+void read_mail (NodeList *nodeList) {
+    char *filename = create_name_file(nodeList->head->value, "_getting.json");
+    if (check_user(nodeList)) {
+        return;
+    }
+    json_object *list = json_object_from_file(filename);
+    unsigned int length = json_object_array_length(list);
+    if (!length) {
+        puts("You have no messages");
+        return;
+    }
+    long int index = strtol(nodeList->last->value, &nodeList->last->value, 10);
+    if (index < 1 || index > length) {
+        puts("message-id is wrong");
+        return;
+    }
+    json_object *object_list = json_object_array_get_idx(list, index - 1);
+    json_object *from = json_object_array_get_idx(object_list, 0);
+    const char *from_str = json_object_get_string(from);
+    json_object *message = json_object_array_get_idx(object_list, 1);
+    const char *message_str = json_object_get_string(message);
+    printf("from=%s\nmessage=%s\n", from_str, message_str);
+    json_object_array_del_idx(list, index, 1);
     json_object_to_file(filename, list);
     free(filename);
 }

@@ -16,5 +16,11 @@ int main(int argc, char **argv) {
     else if (strcmp(argv[1], "send-message") == 0 && (list = check_send_message_argv(argc, argv))) {
         send_message (list);
     }
+    else if (strcmp(argv[1], "read-mailbox") == 0 && (list = check_read_mailbox_argv(argc, argv))) {
+        read_mailbox (list);
+    }
+    else if (strcmp(argv[1], "read-mail") == 0 && (list = check_read_mail_argv(argc, argv))) {
+        read_mail (list);
+    }
     return 0;
 }

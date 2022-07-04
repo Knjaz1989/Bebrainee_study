@@ -35,10 +35,14 @@ static void delete_nodeList (NodeList *nodeList);
 static NodeList *check_create_user_argv (int argc, char **argv);
 static NodeList *check_get_user_argv (int argc, char **argv);
 static NodeList *check_send_message_argv (int argc, char **argv);
+static NodeList *check_read_mailbox_argv(int argc, char **argv);
+static NodeList *check_read_mail_argv(int argc, char **argv);
 
 void add_user_to_file (NodeList *nodeList);
 void read_user_from_file (NodeList *nodeList);
 void send_message (NodeList *nodeList);
+void read_mailbox (NodeList *nodeList);
+void read_mail (NodeList *nodeList);
 
 static char *hash_function (const char *str);
 static int check_right_password (char *password);
