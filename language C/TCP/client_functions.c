@@ -33,7 +33,6 @@ json_object *get_argv (int argc, char **argv) {
                 break;
         }
     }
-    json_object_to_file("file.json", dict);
     char *collect[] = {"port", "host", "login"};
     for (int index = 0; index < 3; index++) {
         json_object *object = json_object_object_get(dict, collect[index]);
