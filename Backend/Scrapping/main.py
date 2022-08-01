@@ -44,7 +44,6 @@ def program(start_page, proceed, format):
     save_data_to_file(data[0], format)
     end_time = time()
     create_metadata(start_time, end_time, data[1], data[2])
-    # print(f"--- {time() - start_time} seconds ---")
 
 
 if __name__ == '__main__':
