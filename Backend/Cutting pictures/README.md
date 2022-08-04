@@ -11,10 +11,10 @@ python3 main.py --help
 ### Time process by cutting 100 images
 
 ##### Standart
-Time process: 2.4471046924591064 seconds
+Time process: 6.284024000167847 seconds
 
 ##### Multiprocessing
-Time process: 0.5857284069061279 seconds
+Time process: 0.1448957920074463 seconds
 
 ##### Multithreading
-Time process: 0.5262408256530762 seconds
+Time process: 1.4671375751495361 seconds
