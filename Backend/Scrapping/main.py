@@ -1,28 +1,8 @@
 import click
-from json_functions import save_to_json, get_json
-from csv_functions import save_to_csv, get_csv, create_metadata
-from xlsx_functions import save_to_xlsx, get_xlsx
-from site_parsing import get_data_from_site
+from csv_functions import create_metadata
+from file_working import get_data_from_file
+from site_parsing import parsing
 from time import time
-
-
-def save_data_to_file(data, format):
-    if format == 'json':
-        save_to_json(data)
-    elif format == 'csv':
-        save_to_csv(data)
-    else:
-        save_to_xlsx(data)
-
-
-def get_data_from_file(format):
-    if format == 'json':
-        data = get_json()
-    elif format == 'csv':
-        data = get_csv()
-    else:
-        data = get_xlsx()
-    return data
 
 
 @click.command()
@@ -36,14 +16,13 @@ def program(start_page, proceed, format):
     if start_page and proceed:
         raise click.UsageError('Use only "--start-page" or "--proceed"')
     elif proceed:
-        data = get_data_from_site(data=get_data_from_file(format))
+        data = parsing(format, data=get_data_from_file(format))
     else:
         if not start_page:
             start_page = 1
-        data = get_data_from_site(start_page=start_page)
-    save_data_to_file(data[0], format)
+        data = parsing(format, start_page=start_page)
     end_time = time()
-    create_metadata(start_time, end_time, data[1], data[2])
+    create_metadata(start_time, end_time, data[0], data[1])
 
 
 if __name__ == '__main__':

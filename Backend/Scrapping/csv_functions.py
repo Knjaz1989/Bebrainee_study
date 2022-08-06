@@ -1,25 +1,25 @@
 import csv
-import ast
-from time import localtime
 from click import UsageError
+from time import localtime
 
 
 def save_to_csv(data):
     with open("data.csv", "w", encoding='utf-8') as file:
-        names = ['page', 'news']
-        writer = csv.DictWriter(file, fieldnames=names)
-        writer.writeheader()
+        writer = csv.writer(file, delimiter=';')
+        writer.writerow(['page', 'item_news'])
         for page, news in data.items():
-            writer.writerow({'page': page, 'news': news})
+            for item_news in news:
+                writer.writerow([page, item_news])
 
 
 def get_csv():
     try:
         with open(f"data.csv", "r") as file:
-            reader = csv.DictReader(file)
+            reader = csv.reader(file, delimiter=';')
             data = {}
-            for item in reader:
-                data[item['page']] = ast.literal_eval(item['news'])
+            next(reader) #Skip header
+            for page, item_news in reader:
+                data.setdefault(page, []).append(item_news)
             return data
     except:
         raise UsageError(f'No such file: "data.csv" or use "--format" to choose another file format')
@@ -28,7 +28,7 @@ def get_csv():
 def create_metadata(start, end, pages: int, notes: int):
     with open("metadata.csv", "w", encoding='utf-8') as file:
         names = ['start_time', 'end_time', 'working_time', 'pages', 'notes']
-        writer = csv.DictWriter(file, fieldnames=names)
+        writer = csv.DictWriter(file, fieldnames=names, delimiter=";")
         writer.writeheader()
         st = localtime(start)
         en = localtime(end)
