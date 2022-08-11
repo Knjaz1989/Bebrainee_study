@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block nav %}
+    <a href="/" class="navbar-item">
+        Home
+    </a>
+    <a href="/create" class="navbar-item">
+        Create post
+    </a>
+    <a href="/logout" class="navbar-item">
+        Logout
+    </a>
+    <span style="color: blue" class="navbar-item">
+        Здравствуйте, {{ user_name }}
+    </span>
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}

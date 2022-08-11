@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block nav %}
+    <a href="/" class="navbar-item">
+        Home
+    </a>
+    <a href="/subscribes" class="navbar-item">
+        Subscribes
+    </a>
+    <a href="/logout" class="navbar-item">
+        Logout
+    </a>
+    <span style="color: blue" class="navbar-item">
+        Здравствуйте, {{ user_name }}
+    </span>
+{% endblock %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    {% for msg in get_flashed_messages(category_filter=['post_create']) %}
+        <div style="color: green" class="flash">{{ msg }}</div>
+    {% endfor %}
+    <h3 class="title">Create post</h3>
+    <div class="box">
+        <form method="POST" action="/create">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="title" placeholder="Enter title of your post" autofocus="" required>
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="post" placeholder="Enter text of your post" required>
+                </div>
+            </div>
+            <div class="field">
+                <label for="post_type">Choose a post type:</label>
+                <select name="post_type">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+            <button class="button is-block is-info is-large is-fullwidth">Create</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block nav %}
+    <a href="/create" class="navbar-item">
+        Create post
+    </a>
+    <a href="/subscribes" class="navbar-item">
+        Subscribes
+    </a>
+    <a href="/logout" class="navbar-item">
+        Logout
+    </a>
+    <span style="color: blue" class="navbar-item">
+        Здравствуйте, {{ user_name }}
+    </span>
+{% endblock %}
+
+{% block content %}
+    {% for post in posts %}
+        <div>Название поста: {{ post.title }}</div>
+        <div>Содержание поста:</div>
+        <div>{{ post.post }}</div>
+        <div>
+            Владелец поста:
+            {% if post.post_type == 'private' %}
+                anonimous
+            {% else %}
+                {{ post.pr.username }}
+            {% endif %}
+        </div> <br>
+    {% endfor %}
+{% endblock %}
