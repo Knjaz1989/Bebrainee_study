@@ -26,6 +26,9 @@ class User(Base):
                                secondaryjoin=user_subscribe.c.respondent_id==id,
                                backref="subscribers")
 
+    def __str__(self):
+        return self.username
+
     def get_user(self, id: int):
         return db.query(User).get(id)
 
