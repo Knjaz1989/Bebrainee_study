@@ -4,7 +4,7 @@
     <a href="/create" class="navbar-item">
         Create post
     </a>
-    <a href="/subscribes" class="navbar-item">
+    <a href="/subscribe" class="navbar-item">
         Subscribes
     </a>
     <a href="/logout" class="navbar-item">
@@ -16,7 +16,24 @@
 {% endblock %}
 
 {% block content %}
-    {% for post in posts %}
+    <div class="posts_block">
+        <span style="color: orange">Мои подписки:</span> <br>
+        {% for respondent_post in respondent_posts %}
+            <div>Название поста: {{ respondent_post.title }}</div>
+            <div>Содержание поста:</div>
+            <div>{{ respondent_post.post }}</div>
+            <div>
+                {% if respondent_post.post_type == 'public' %}
+                    Владелец поста: {{ respondent_post.user.username }}
+                    <form action="/user/{{ respondent_post.user.id }}">
+                        <input type="submit" value="Посмотреть профиль" />
+                    </form>
+                {% endif %}
+            </div> <br>
+        {% endfor %}
+
+        <span style="color: orange">Лента новостей:</span>
+        {% for post in posts %}
         <div>Название поста: {{ post.title }}</div>
         <div>Содержание поста:</div>
         <div>{{ post.post }}</div>
@@ -25,8 +42,13 @@
             {% if post.post_type == 'private' %}
                 anonimous
             {% else %}
-                {{ post.pr.username }}
+                {{ post.user.username }}
+                <form action="/user/{{ post.user.id }}">
+                    <input type="submit" value="Посмотреть профиль" />
+                </form>
             {% endif %}
         </div> <br>
-    {% endfor %}
+        {% endfor %}
+    </div>
+
 {% endblock %}

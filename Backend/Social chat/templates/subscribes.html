@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block nav %}
-    <a href="/" class="navbar-item">
+    <a href="/user" class="navbar-item">
         Home
     </a>
     <a href="/create" class="navbar-item">
@@ -16,5 +16,15 @@
 {% endblock %}
 
 {% block content %}
+     <div class="posts_block">
+        {% for respondent in respondents %}
+            Имя пользователя: {{ respondent.username }}
+            <form action="/unsubscribe" method="post" >
+                <input type="hidden" name="other_user" value="{{ respondent.id }}">
+                <input type="submit" value="Отписаться" />
+            </form>
+        {% endfor %}
 
+
+    </div>
 {% endblock %}

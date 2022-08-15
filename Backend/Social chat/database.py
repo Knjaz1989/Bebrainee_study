@@ -1,51 +1,72 @@
-from application import db, login_manager
+from sqlalchemy import create_engine, Column, Integer, String, Enum, DateTime, ForeignKey, Table, not_, desc, and_, or_
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 
-class Users(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer(), primary_key=True)
-    username = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(100), nullable=False, unique=True)
-    password_hash = db.Column(db.String(200), nullable=False)
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return str(self.id)
+engine = create_engine('postgresql+psycopg2://db_user:1234@localhost:5432/db_test')
+Base = declarative_base()
+Session = sessionmaker(bind=engine)
+db = Session()
 
 
-
-class Posts(db.Model):
-    __tablename__ = 'posts'
-
-    id = db.Column(db.Integer(), primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    post = db.Column(db.String(1000), nullable=False)
-    post_type = db.Column(db.Enum("private", "public", name="status"))
-    created_at = db.Column(db.DateTime())
-    user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'))
-    pr = db.relationship('Users', backref='posts', uselist=False)
+user_subscribe = Table('user_subscribe', Base.metadata,
+    Column('respondent_id', Integer, ForeignKey('user.id')),
+    Column('subscriber_id', Integer, ForeignKey('user.id'))
+)
 
 
-class Subscribes(db.Model):
-    __tablename__ = 'subscribes'
-    
-    id = db.Column(db.Integer(), primary_key=True)
-    subscribe_user = db.Column(db.Integer(), nullable=False)
-    user_id = db.Column(db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String(50), nullable=False)
+    email = Column(String(100), nullable=False, unique=True)
+    password_hash = Column(String(200), nullable=False)
+    respondents = relationship('User', secondary=user_subscribe,
+                               primaryjoin=user_subscribe.c.subscriber_id==id,
+                               secondaryjoin=user_subscribe.c.respondent_id==id,
+                               backref="subscribers")
+
+    def get_user(self, id: int):
+        return db.query(User).get(id)
+
+    def get_resp_ids(self):
+        id_list = [resp.id for resp in self.respondents]
+        return id_list
+
+    def get_respondent_posts(self):
+        posts = []
+        for resp in self.respondents:
+            for post in resp.posts:
+                if post.post_type == 'public':
+                    posts.append(post)
+        return posts
+
+    def get_other_posts(self):
+        ids_list = self.get_resp_ids()
+        posts = db.query(Post).filter(
+            not_(Post.user_id == self.id)
+        ).filter(
+            or_(
+                and_(
+                    Post.user_id.in_(ids_list),
+                    Post.post_type == 'private'),
+                Post.user_id.notin_(ids_list)
+            )
+        ).order_by(desc(Post.created_at)).all()
+        return posts
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return Users.query.get(user_id)
+class Post(Base):
+    __tablename__ = 'post'
+
+    id = Column(Integer(), primary_key=True)
+    title = Column(String(100), nullable=False)
+    post = Column(String(1000), nullable=False)
+    post_type = Column(Enum("private", "public", name="status"))
+    created_at = Column(DateTime())
+    user_id = Column(ForeignKey('user.id', ondelete='CASCADE'))
+    user = relationship('User', backref='posts', uselist=False)
 
 
-db.create_all()
+# Создание таблиц
+Base.metadata.create_all(engine)
