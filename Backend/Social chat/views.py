@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from application import app
 from auth import check_user, login_required
 from database import User, Post, db
+from tasks import create_post
 
 
 class StartPage(MethodView):
@@ -100,16 +101,7 @@ class Create(MethodView):
 
     @login_required
     def post(self):
-        title = request.form.get('title')
-        post = request.form.get('post')
-        post_type = request.form.get('post_type')
-        new_post = Post(
-            title=title, post=post, post_type=post_type, user_id=session['id'],
-            created_at=datetime.now()
-        )
-        db.add(new_post)
-        db.commit()
-        flash("Пост успешно создан", 'post_create')
+        create_post.delay()
         return render_template("create.html", user_name=session['username'])
 
 
