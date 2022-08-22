@@ -1,10 +1,9 @@
-from datetime import datetime
-from flask import render_template, request, session, redirect, flash, url_for
+from flask import render_template, request, session, redirect, url_for
 from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
-from application import app
+from application import app, cache
 from auth import check_user, login_required
-from database import User, Post, db
+from database import User, db
 from tasks import create_post
 
 
@@ -18,13 +17,16 @@ class StartPage(MethodView):
 class UserView(MethodView):
 
     @login_required
+    @cache.cached(timeout=100)
     def get(self):
+        search_text = request.args.get('text')
         current_user = User.get_user(self, session['id'])
-        respondent_posts = current_user.get_respondent_posts()
-        other_posts = current_user.get_other_posts()
+        respondent_posts = current_user.get_respondent_posts(search_text)
+        other_posts = current_user.get_other_posts(search_text)
         return render_template("user_page.html", user_name=session['username'],
                                respondent_posts=respondent_posts,
-                               posts=other_posts)
+                               posts=other_posts
+                               )
 
 
 class OtherUser(MethodView):

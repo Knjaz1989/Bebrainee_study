@@ -36,15 +36,17 @@ class User(Base):
         id_list = [resp.id for resp in self.respondents]
         return id_list
 
-    def get_respondent_posts(self):
+    def get_respondent_posts(self, search_text):
         posts = []
         for resp in self.respondents:
             for post in resp.posts:
                 if post.post_type == 'public':
+                    if search_text and search_text.strip() and search_text not in post.post:
+                        continue
                     posts.append(post)
         return posts
 
-    def get_other_posts(self):
+    def get_other_posts(self, search_text):
         ids_list = self.get_resp_ids()
         posts = db.query(Post).filter(
             not_(Post.user_id == self.id)
@@ -55,8 +57,10 @@ class User(Base):
                     Post.post_type == 'private'),
                 Post.user_id.notin_(ids_list)
             )
-        ).order_by(desc(Post.created_at)).all()
-        return posts
+        ).order_by(desc(Post.created_at))
+        if search_text and search_text.strip():
+            posts = posts.filter(Post.post.ilike(f"%{search_text}%"))
+        return posts.all()
 
 
 class Post(Base):

@@ -17,6 +17,10 @@
 
 {% block content %}
     <div class="posts_block">
+        <form action="/user">
+            <input type="search" name="text">
+            <input type="submit" value="Найти">
+        </form>
         <span style="color: orange">Мои подписки:</span> <br>
         {% for respondent_post in respondent_posts %}
             <div>Название поста: {{ respondent_post.title }}</div>
