@@ -1,8 +1,8 @@
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 
-from application import app
-from database import Post, User, db
+from application import app, db
+from database import Post, User
 
 admin = Admin(app)
 

@@ -2,8 +2,8 @@ import csv
 from datetime import datetime
 from celery import Celery
 from flask import request, session, flash
-from application import app
-from database import User, db, Post
+from application import app, db
+from database import User, Post
 
 
 app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'

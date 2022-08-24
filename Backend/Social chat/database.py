@@ -1,11 +1,9 @@
-from sqlalchemy import create_engine, Column, Integer, String, Enum, DateTime, ForeignKey, Table, not_, desc, and_, or_
-from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey, Table, not_, desc, and_, or_
+from sqlalchemy.orm import declarative_base, relationship
+from application import db
 
 
-engine = create_engine('postgresql+psycopg2://db_user:1234@localhost:5432/db_test')
 Base = declarative_base()
-Session = sessionmaker(bind=engine)
-db = Session()
 
 
 user_subscribe = Table('user_subscribe', Base.metadata,
@@ -69,11 +67,7 @@ class Post(Base):
     id = Column(Integer(), primary_key=True)
     title = Column(String(100), nullable=False)
     post = Column(String(1000), nullable=False)
-    post_type = Column(Enum("private", "public", name="status"))
+    post_type = Column(Enum("private", "public", name="post_type"))
     created_at = Column(DateTime())
     user_id = Column(ForeignKey('user.id', ondelete='CASCADE'))
     user = relationship('User', backref='posts', uselist=False)
-
-
-# Создание таблиц
-Base.metadata.create_all(engine)

@@ -1,5 +1,4 @@
 import admin
-import database
 import views
 from application import app
 

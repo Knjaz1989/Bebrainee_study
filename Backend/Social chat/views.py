@@ -1,9 +1,9 @@
 from flask import render_template, request, session, redirect, url_for
 from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
-from application import app, cache
+from application import app, cache, db
 from auth import check_user, login_required
-from database import User, db
+from database import User
 from tasks import create_post
 
 
