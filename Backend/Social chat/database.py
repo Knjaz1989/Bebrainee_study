@@ -1,73 +1,85 @@
-from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey, Table, not_, desc, and_, or_
+from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey, Table, not_, desc, and_, or_, Index
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.sql import func
 from application import db
 
 
 Base = declarative_base()
 
 
-user_subscribe = Table('user_subscribe', Base.metadata,
-    Column('respondent_id', Integer, ForeignKey('user.id')),
-    Column('subscriber_id', Integer, ForeignKey('user.id'))
-)
+users_subscribes = Table('users_subscribes', Base.metadata,
+                         Column('respondent_id', Integer, ForeignKey('users.id')),
+                         Column('subscriber_id', Integer, ForeignKey('users.id'))
+                         )
 
 
-class User(Base):
-    __tablename__ = 'user'
+class Users(Base):
+    __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
     username = Column(String(50), nullable=False)
     email = Column(String(100), nullable=False, unique=True)
-    password_hash = Column(String(200), nullable=False)
-    respondents = relationship('User', secondary=user_subscribe,
-                               primaryjoin=user_subscribe.c.subscriber_id==id,
-                               secondaryjoin=user_subscribe.c.respondent_id==id,
+    password = Column(String(200), nullable=False)
+    posts = relationship('Posts')
+    respondents = relationship('Users', secondary=users_subscribes,
+                               primaryjoin=users_subscribes.c.subscriber_id == id,
+                               secondaryjoin=users_subscribes.c.respondent_id == id,
                                backref="subscribers")
 
     def __str__(self):
-        return self.username
+        return self.email
 
-    def get_user(self, id: int):
-        return db.query(User).get(id)
+    @staticmethod
+    def get_user_by_id(user_id: int):
+        return db.query(Users).get(user_id)
 
-    def get_resp_ids(self):
-        id_list = [resp.id for resp in self.respondents]
-        return id_list
+    @staticmethod
+    def get_user_by_email(email: str):
+        return db.query(Users).filter(Users.email == email).first()
+
+    def get_subscribers(self):
+        return self.subscribers
+
+    def get_respondents(self):
+        return self.respondents
 
     def get_respondent_posts(self, search_text):
-        posts = []
-        for resp in self.respondents:
-            for post in resp.posts:
-                if post.post_type == 'public':
-                    if search_text and search_text.strip() and search_text not in post.post:
-                        continue
-                    posts.append(post)
-        return posts
+        ids_list = [user.id for user in self.get_respondents()]
+        posts = db.query(Posts).filter(
+            Posts.user_id.in_(ids_list), Posts.post_type == 'public'
+        )
+        if search_text and search_text.strip():
+            posts = posts.filter(Posts.post.ilike(f"%{search_text}%"))
+        return posts.all()
 
-    def get_other_posts(self, search_text):
-        ids_list = self.get_resp_ids()
-        posts = db.query(Post).filter(
-            not_(Post.user_id == self.id)
-        ).filter(
+    def get_not_respondent_posts(self, search_text):
+        ids_list = [user.id for user in self.get_respondents()]
+        posts = db.query(Posts).filter(
+            Posts.user_id != self.id,
             or_(
                 and_(
-                    Post.user_id.in_(ids_list),
-                    Post.post_type == 'private'),
-                Post.user_id.notin_(ids_list)
-            )
-        ).order_by(desc(Post.created_at))
+                    Posts.user_id.in_(ids_list),
+                    Posts.post_type == 'private'
+                    ),
+                Posts.user_id.notin_(ids_list)
+                )
+        ).order_by(desc(Posts.created_at))
         if search_text and search_text.strip():
-            posts = posts.filter(Post.post.ilike(f"%{search_text}%"))
+            posts = posts.filter(Posts.post.ilike(f"%{search_text}%"))
         return posts.all()
 
 
-class Post(Base):
-    __tablename__ = 'post'
+class Posts(Base):
+    __tablename__ = 'posts'
 
     id = Column(Integer(), primary_key=True)
     title = Column(String(100), nullable=False)
     post = Column(String(1000), nullable=False)
-    post_type = Column(Enum("private", "public", name="post_type"))
-    created_at = Column(DateTime())
-    user_id = Column(ForeignKey('user.id', ondelete='CASCADE'))
-    user = relationship('User', backref='posts', uselist=False)
+    post_type = Column(Enum("private", "public", name="post_type"), default='public')
+    created_at = Column(DateTime(), default=func.now())
+    user_id = Column(ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user = relationship('Users', back_populates='posts')
+    idx_post_type = Index('idx_post_type', post_type)
+
+    def __str__(self):
+        return self.title

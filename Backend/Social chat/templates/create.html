@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block nav %}
-    <a href="/user" class="navbar-item">
+    <a href="/user/" class="navbar-item">
         Home
     </a>
-    <a href="/subscribe" class="navbar-item">
+    <a href="/subscribe/" class="navbar-item">
         Subscribes
     </a>
-    <a href="/logout" class="navbar-item">
+    <a href="/logout/" class="navbar-item">
         Logout
     </a>
     <span style="color: blue" class="navbar-item">
@@ -22,7 +22,7 @@
     {% endfor %}
     <h3 class="title">Create post</h3>
     <div class="box">
-        <form method="POST" action="/create">
+        <form method="POST" action="/create/">
             <div class="field">
                 <div class="control">
                     <input class="input is-large" type="text" name="title" placeholder="Enter title of your post" autofocus="" required>

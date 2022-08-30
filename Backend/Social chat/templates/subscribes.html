@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block nav %}
-    <a href="/user" class="navbar-item">
+    <a href="/user/" class="navbar-item">
         Home
     </a>
-    <a href="/create" class="navbar-item">
+    <a href="/create/" class="navbar-item">
         Create post
     </a>
-    <a href="/logout" class="navbar-item">
+    <a href="/logout/" class="navbar-item">
         Logout
     </a>
     <span style="color: blue" class="navbar-item">
@@ -19,7 +19,7 @@
      <div class="posts_block">
         {% for respondent in respondents %}
             Имя пользователя: {{ respondent.username }}
-            <form action="/unsubscribe" method="post" >
+            <form action="/unsubscribe/" method="post" >
                 <input type="hidden" name="other_user" value="{{ respondent.id }}">
                 <input type="submit" value="Отписаться" />
             </form>
