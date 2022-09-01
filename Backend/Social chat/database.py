@@ -29,12 +29,12 @@ class Users(Base):
     def __str__(self):
         return self.email
 
-    @staticmethod
-    def get_user_by_id(user_id: int):
+    @classmethod
+    def get_user_by_id(cls, user_id: int):
         return db.query(Users).get(user_id)
 
-    @staticmethod
-    def get_user_by_email(email: str):
+    @classmethod
+    def get_user_by_email(cls, email: str):
         return db.query(Users).filter(Users.email == email).first()
 
     def get_subscribers(self):
