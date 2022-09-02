@@ -1,11 +1,11 @@
 from flask import render_template, request, session, redirect, url_for, flash
 from flask.views import MethodView
-from werkzeug.security import check_password_hash, generate_password_hash
-from application import app, db
-from auth import login_required
-from database import Users, Posts
-from pagination import Paginator
-from tasks import create_report
+from werkzeug.security import check_password_hash
+from application import app
+from database.models import Users, Posts
+from utils import pagination
+from utils.tasks import create_report
+from utils.auth import login_required
 
 
 class StartPage(MethodView):
@@ -19,11 +19,9 @@ class UserView(MethodView):
     @login_required
     def get(self, page=1):
         search_text = request.args.get('text')
-        current_user = Users.get_user_by_id(session['id'])
-        respondent_posts = current_user.get_respondent_posts(search_text)
-        other_posts = current_user.get_not_respondent_posts(search_text)
-        posts = respondent_posts + other_posts
-        page = Paginator(posts, page, 50)
+        current_user = Users.get_by_id(session['id'])
+        posts_query = current_user.get_posts(search_text)
+        page = pagination.Paginator(posts_query, page, 50)
         return render_template("user_page.html", user_name=session['username'],
                                page=page
                                )
@@ -33,12 +31,9 @@ class OtherUser(MethodView):
 
     @login_required
     def get(self, id):
-        current_user = Users.get_user_by_id(session['id'])
-        other_user = Users.get_user_by_id(id)
-        if current_user in other_user.get_subscribers():
-            exists = True
-        else:
-            exists = False
+        current_user = Users.get_by_id(session['id'])
+        other_user = Users.get_by_id(id)
+        exists = current_user in other_user.get_subscribers()
         return render_template("other_user_profile.html", user_name=session['username'],
                                other_user=other_user, exists=exists)
 
@@ -52,7 +47,7 @@ class Login(MethodView):
         email = request.form.get('email').lower()
         password = request.form.get('password')
         remember_me = bool(request.form.get('remember'))
-        user = Users.get_user_by_email(email)
+        user = Users.get_by_email(email)
         if user and check_password_hash(user.password, password):
             for key, value in user.__dict__.items():
                 if key not in ['_sa_instance_state', 'password_hash']:
@@ -79,14 +74,10 @@ class SignUp(MethodView):
         return render_template("sign_up.html")
 
     def post(self):
-        email = request.form.get('email').lower()
-        if Users.get_user_by_email(email):
+        email = request.form.get('email', '').lower()
+        if Users.get_by_email(email):
             return render_template("sign_up.html", error="Such email exists")
-        password = request.form.get('password')
-        username = request.form.get('name')
-        new_user = Users(username=username, email=email, password=generate_password_hash(password))
-        db.add(new_user)
-        db.commit()
+        Users.user_sign_up(request, email)
         return redirect(url_for("login"))
 
 
@@ -98,16 +89,10 @@ class Create(MethodView):
 
     @login_required
     def post(self):
-        title = request.form.get('title')
-        post = request.form.get('post')
-        post_type = request.form.get('post_type')
-        new_post = Posts(
-            title=title, post=post, post_type=post_type, user_id=session['id']
-        )
-        db.add(new_post)
-        db.commit()
+        Posts.create_post(request, session["id"])
         flash("Пост успешно создан", 'post_create')
         create_report.delay(session['id'])
+        # create_report(session['id'])
         return render_template("create.html", user_name=session['username'])
 
 
@@ -115,16 +100,13 @@ class Subscribe(MethodView):
 
     @login_required
     def get(self):
-        user = Users.get_user_by_id(session['id'])
+        user = Users.get_by_id(session['id'])
         respondents = user.get_respondents()
         return render_template("subscribes.html", user_name=session['username'], respondents=respondents)
 
     @login_required
     def post(self):
-        user = Users.get_user_by_id(session['id'])
-        respondent = Users.get_user_by_id(int(request.form.get('other_user')))
-        user.respondents.append(respondent)
-        db.commit()
+        Users.subscribe(request, session["id"])
         return redirect(url_for('get_user_page'))
 
 
@@ -132,10 +114,7 @@ class Unsubscribe(MethodView):
 
     @login_required
     def post(self):
-        user = Users.get_user_by_id(session['id'])
-        respondent = Users.get_user_by_id(int(request.form.get('other_user')))
-        user.respondents.remove(respondent)
-        db.commit()
+        Users.unsubscribe(request, session["id"])
         return redirect(url_for('get_user_page'))
 
 

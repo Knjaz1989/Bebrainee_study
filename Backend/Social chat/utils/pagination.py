@@ -3,8 +3,8 @@ import math
 
 class Paginator:
 
-    def __init__(self, data: list, page_number: int, limit: int):
-        self.__data = data
+    def __init__(self, data, page_number: int, limit: int):
+        self.__data = data.all()
         self.__limit = limit
         self.__page_number = self.check_page(page_number)
 

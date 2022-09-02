@@ -3,7 +3,7 @@ from multiprocessing import cpu_count
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
-from database import Users, Posts
+from database.models import Users, Posts
 
 
 def create_user_and_posts(u_number):

@@ -1,6 +1,6 @@
-import admin
 import views
 from application import app
+from utils import admin
 
 
 if __name__ == '__main__':

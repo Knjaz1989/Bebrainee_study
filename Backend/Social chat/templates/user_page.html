@@ -26,6 +26,7 @@
         <div>Название поста: {{ post.title }}</div>
         <div>Содержание поста:</div>
         <div>{{ post.post }}</div>
+        <div>Дата создания: {{ post.created_at }}</div>
         <div>
             Владелец поста:
             {% if post.post_type == 'private' %}
@@ -36,7 +37,7 @@
                     <input type="submit" value="Посмотреть профиль" />
                 </form>
             {% endif %}
-        </div> <br>
+        </div><br>
         {% endfor %}
         {% if page.has_prev() %}
             <a href="/user/{{ page.prev_page() }}/">&lt;&lt; Newer posts</a>

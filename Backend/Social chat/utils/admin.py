@@ -2,7 +2,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash
 from application import app, db
-from database import Posts, Users
+from database.models import Posts, Users
 
 admin = Admin(app)
 
@@ -13,6 +13,7 @@ class UsersAdmin(ModelView):
 
     def on_model_change(self, form, model, is_created):
         model.password = generate_password_hash(model.password)
+        model.email = model.email.lower()
 
 
 class PostsAdmin(ModelView):
