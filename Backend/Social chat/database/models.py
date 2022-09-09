@@ -68,23 +68,57 @@ class Users(Base):
 
     def get_posts(self, search_text):
         ids_list = [user.id for user in self.get_respondents()]
-        posts_query = db.query(Posts).filter(
-            Posts.user_id.in_(ids_list), Posts.post_type == 'public'
-        ).order_by(desc(Posts.created_at)).union_all(
-            db.query(Posts).filter(
-                Posts.user_id != self.id,
-                or_(
-                    and_(
-                        Posts.user_id.in_(ids_list),
-                        Posts.post_type == 'private'
-                    ),
-                    Posts.user_id.notin_(ids_list)
-                )
-            ).order_by(desc(Posts.created_at))
-        )
+        # raw
+        raw = '''
+            SELECT * FROM (
+                SELECT p.title, p.post, p.post_type, p.created_at, p.user_id, u.username 
+                FROM posts as p
+                JOIN users as u on p.user_id = u.id
+                WHERE p.user_id = ANY(:ids_list) AND p.post_type = 'public'
+                ORDER BY created_at DESC
+                ) a
+            UNION ALL 
+            SELECT * FROM (
+                SELECT p.title, p.post, p.post_type, p.created_at, p.user_id, u.username 
+                FROM posts as p
+                JOIN users as u on p.user_id = u.id
+                WHERE p.user_id <> :user_id 
+                AND (
+                    (p.post_type = 'private' AND p.user_id = ANY(:ids_list))
+                    OR 
+                    p.user_id <> ALL(:ids_list)
+                ) 
+                ORDER BY created_at DESC                             
+            ) b
+            '''
         if search_text and search_text.strip():
-            posts_query = posts_query.filter(Posts.post.ilike(f"%{search_text}%"))
-        return posts_query
+            return db.execute(
+                f'''
+                SELECT * FROM (
+                    {raw}
+                ) d
+                WHERE post LIKE :text
+                ''', {'text': f'%{search_text}%', 'ids_list': ids_list, 'user_id': self.id}
+            )
+        return db.execute(raw, {'ids_list': ids_list, 'user_id': self.id})
+        # ORM
+        # posts_ = db.query(Posts).filter(
+        #     Posts.user_id.in_(ids_list), Posts.post_type == 'public'
+        # ).order_by(desc(Posts.created_at)).union_all(
+        #     db.query(Posts).filter(
+        #         Posts.user_id != self.id,
+        #         or_(
+        #             and_(
+        #                 Posts.user_id.in_(ids_list),
+        #                 Posts.post_type == 'private'
+        #             ),
+        #             Posts.user_id.notin_(ids_list)
+        #         )
+        #     ).order_by(desc(Posts.created_at))
+        # )
+        # if search_text and search_text.strip():
+        #     posts_query = posts_query.filter(Posts.post.ilike(f"%{search_text}%"))
+        # return posts_
 
 
 class Posts(Base):

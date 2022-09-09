@@ -23,17 +23,17 @@
         </form>
         <span style="color: orange">Лента новостей:</span>
         {% for post in page.data() %}
-        <div>Название поста: {{ post.title }}</div>
+        <div>Название поста: {{ post[0] }}</div>
         <div>Содержание поста:</div>
-        <div>{{ post.post }}</div>
-        <div>Дата создания: {{ post.created_at }}</div>
+        <div>{{ post[1] }}</div>
+        <div>Дата создания: {{ post[3] }}</div>
         <div>
             Владелец поста:
-            {% if post.post_type == 'private' %}
+            {% if post[2] == 'private' %}
                 anonimous
             {% else %}
-                {{ post.user.username }}
-                <form action="/other_user/{{ post.user.id }}/">
+                {{ post[5] }}
+                <form action="/other_user/{{ post[4] }}/">
                     <input type="submit" value="Посмотреть профиль" />
                 </form>
             {% endif %}
