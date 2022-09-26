@@ -1,6 +1,5 @@
-import views
 from application import app
-from utils import admin
+from views import routes
 
 
 if __name__ == '__main__':
