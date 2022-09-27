@@ -1,3 +1,4 @@
+import os
 from concurrent.futures.process import ProcessPoolExecutor
 from multiprocessing import cpu_count
 from sqlalchemy import create_engine
@@ -7,7 +8,7 @@ from database.models import Users, Posts
 
 
 def create_user_and_posts(u_number):
-    engine = create_engine('postgresql+psycopg2://db_user:1234@localhost:5432/db_test')
+    engine = create_engine(os.environ.get('DATABASE_URL'))
     db = Session(bind=engine)
     mail = f"{u_number}@mail.ru"
     pwd = '123'

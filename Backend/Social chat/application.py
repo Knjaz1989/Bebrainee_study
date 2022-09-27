@@ -1,16 +1,18 @@
 import os
 
 from flask import Flask
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from flask_admin import Admin
+
+from database.base import db
+from database.posts.models import Posts
+from database.users.models import Users
+from views.admin import UsersAdmin, PostsAdmin
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 
-engine = create_engine(
-    f"postgresql+psycopg2://db_user:1234@localhost:5432/db_test"
-)
-Session = sessionmaker(bind=engine)
-db = Session()
+admin = Admin(app)
+admin.add_view(UsersAdmin(Users, db))
+admin.add_view(PostsAdmin(Posts, db))

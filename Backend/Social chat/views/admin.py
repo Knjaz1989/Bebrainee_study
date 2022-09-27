@@ -1,10 +1,5 @@
-from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash
-from application import app, db
-from database.models import Posts, Users
-
-admin = Admin(app)
 
 
 class UsersAdmin(ModelView):
@@ -18,7 +13,3 @@ class UsersAdmin(ModelView):
 
 class PostsAdmin(ModelView):
     form_excluded_columns = ('created_at',)
-
-
-admin.add_view(UsersAdmin(Users, db))
-admin.add_view(PostsAdmin(Posts, db))

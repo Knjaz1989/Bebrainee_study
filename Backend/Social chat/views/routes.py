@@ -1,5 +1,6 @@
 from application import app
-from .views import StartPage, UserView, OtherUser, Login, Logout, SignUp, Create, Subscribe, Unsubscribe
+from .views import StartPage, UserView, OtherUser, Login, Logout, SignUp, \
+    Create, Subscribe, Unsubscribe
 
 
 app.add_url_rule('/', view_func=StartPage.as_view('get_start_page'), methods=["GET"])
