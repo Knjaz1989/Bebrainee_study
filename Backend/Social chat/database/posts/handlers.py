@@ -8,3 +8,8 @@ def create_post(title: str, post: str, post_type: str, user_id: int):
     )
     db.add(new_post)
     db.commit()
+
+
+def get_own_posts(id: int):
+    user_posts = db.query(Posts).filter(Posts.user_id == id)
+    return user_posts.all()

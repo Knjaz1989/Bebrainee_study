@@ -31,14 +31,14 @@ def create_user_and_posts(u_number):
     db.commit()
 
 
-def multi_create():
+def multi_create(users_count):
     executor = ProcessPoolExecutor(max_workers=cpu_count())
-    for u_number in range(1, 100001):
+    for u_number in range(1, users_count + 1):
         executor.map(create_user_and_posts, (u_number,))
     executor.shutdown()
 
 
 if __name__ == '__main__':
     start = time()
-    multi_create()
+    multi_create(1000000)
     print(time() - start)

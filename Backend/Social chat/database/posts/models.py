@@ -19,7 +19,7 @@ class Posts(PostBase):
     created_at = Column(DateTime(), default=func.now())
     user_id = Column(ForeignKey(Users.id, ondelete='CASCADE'),
                      nullable=False)
-    user = relationship(Users)
+    user = relationship(Users, backref="posts")
     idx_post_type = Index('idx_post_type', post_type)
 
     def __str__(self):

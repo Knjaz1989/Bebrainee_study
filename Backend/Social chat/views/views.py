@@ -108,7 +108,6 @@ class Create(MethodView):
         create_post(title, post, post_type, session["id"])
         flash("Пост успешно создан", 'post_create')
         create_report.delay(session['id'])
-        # create_report(session['id'])
         return render_template("create.html", user_name=session['username'])
 
 
