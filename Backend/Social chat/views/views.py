@@ -2,7 +2,10 @@ from flask import render_template, request, session, redirect, url_for, flash
 from flask.views import MethodView
 from werkzeug.security import check_password_hash
 
-from database.posts.models import Posts
+from database.posts.handlers import create_post
+from database.users.handlers import get_user_by_id, get_posts_by_raw, \
+    get_subscribers, get_user_by_email, user_sign_up, get_respondents, \
+    user_subscribe, user_unsubscribe
 from database.users.models import Users
 from utils import pagination
 from utils.tasks import create_report
@@ -28,8 +31,8 @@ class UserView(MethodView):
     @login_required
     def get(self, page=1):
         search_text = request.args.get('text')
-        current_user = Users.get_by_id(session['id'])
-        posts_query = current_user.get_posts(search_text)
+        current_user = get_user_by_id(session['id'])
+        posts_query = get_posts_by_raw(current_user, search_text)
         page = pagination.Paginator(posts_query, page, 50)
         return render_template("user_page.html", user_name=session['username'],
                                page=page
@@ -39,10 +42,10 @@ class UserView(MethodView):
 class OtherUser(MethodView):
 
     @login_required
-    def get(self, id):
-        current_user = Users.get_by_id(session['id'])
-        other_user = Users.get_by_id(id)
-        exists = current_user in other_user.get_subscribers()
+    def get(self, other_id):
+        current_user = get_user_by_id(session['id'])
+        other_user = get_user_by_id(other_id)
+        exists = current_user in get_subscribers(other_user)
         return render_template("other_user_profile.html",
                                user_name=session['username'],
                                other_user=other_user, exists=exists)
@@ -57,7 +60,7 @@ class Login(MethodView):
         email = request.form['email'].lower()
         password = request.form['password']
         remember_me = bool(request.form.get('remember'))
-        user = Users.get_by_email(email)
+        user = get_user_by_email(email)
         if not user or not check_password_hash(user.password, password):
             return render_template("login.html",
                                    error="Wrong email or password")
@@ -84,9 +87,9 @@ class SignUp(MethodView):
         email = request.form['email'].lower()
         username = request.form['username']
         password = request.form['password']
-        if Users.get_by_email(email):
+        if get_user_by_email(email):
             return render_template("sign_up.html", error="Such email exists")
-        user = Users.user_sign_up(username, password, email)
+        user = user_sign_up(username, password, email)
         add_to_session(user)
         return redirect(url_for("get_user_page"))
 
@@ -102,7 +105,7 @@ class Create(MethodView):
         title = request.form['title']
         post = request.form['post']
         post_type = request.form['post_type']
-        Posts.create_post(title, post, post_type, session["id"])
+        create_post(title, post, post_type, session["id"])
         flash("Пост успешно создан", 'post_create')
         create_report.delay(session['id'])
         # create_report(session['id'])
@@ -113,8 +116,8 @@ class Subscribe(MethodView):
 
     @login_required
     def get(self):
-        user = Users.get_by_id(session['id'])
-        respondents = user.get_respondents()
+        user = get_user_by_id(session['id'])
+        respondents = get_respondents(user)
         return render_template("subscribes.html",
                                user_name=session['username'],
                                respondents=respondents)
@@ -122,7 +125,7 @@ class Subscribe(MethodView):
     @login_required
     def post(self):
         other_user = int(request.form['other_user'])
-        Users.subscribe(session["id"], other_user)
+        user_subscribe(session["id"], other_user)
         return redirect(url_for('get_user_page'))
 
 
@@ -131,5 +134,5 @@ class Unsubscribe(MethodView):
     @login_required
     def post(self):
         other_user = int(request.form['other_user'])
-        Users.unsubscribe(session["id"], other_user)
+        user_unsubscribe(session["id"], other_user)
         return redirect(url_for('get_user_page'))
