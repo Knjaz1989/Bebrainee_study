@@ -1,41 +1,44 @@
-import os
 from concurrent.futures.process import ProcessPoolExecutor
 from multiprocessing import cpu_count
+from time import time
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
-from database.models import Users, Posts
+
+import config
+from database.posts.models import Posts
+from database.users.models import Users
+
+
+engine = create_engine(config.PG_URL)
+db = Session(bind=engine)
 
 
 def create_user_and_posts(u_number):
-    engine = create_engine(os.environ.get('DATABASE_URL'))
-    db = Session(bind=engine)
-    mail = f"{u_number}@mail.ru"
-    pwd = '123'
-    user = Users(username=f'user_{u_number}', email=mail, password=generate_password_hash(pwd))
+    user = Users(username=f'user_{u_number}',
+                 email=f"{u_number}@mail.ru",
+                 password=generate_password_hash('123'))
     db.add(user)
-    db.commit()
-    for p_number in range(1, 3):
-        post_type = 'public'
-        if p_number == 2:
-            post_type = 'private'
+    for number, post_type in enumerate(['public', 'private', 'public']):
         post = Posts(
-            title=f'Пост {p_number} пользователя user_{u_number}',
+            title=f'Пост {number + 1} пользователя user_{u_number}',
             post='Просто пост',
             post_type=post_type,
-            user_id=user.id,
             )
+        post.user = user
         db.add(post)
     db.commit()
 
 
 def multi_create():
     executor = ProcessPoolExecutor(max_workers=cpu_count())
-    for u_number in range(1, 10001):
+    for u_number in range(1, 100001):
         executor.map(create_user_and_posts, (u_number,))
     executor.shutdown()
 
 
 if __name__ == '__main__':
+    start = time()
     multi_create()
-
+    print(time() - start)
