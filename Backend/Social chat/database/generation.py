@@ -32,7 +32,7 @@ def create_user_and_posts(u_number):
 
 
 def multi_create(users_count):
-    executor = ProcessPoolExecutor(max_workers=cpu_count())
+    executor = ProcessPoolExecutor(max_workers=4)
     for u_number in range(1, users_count + 1):
         executor.map(create_user_and_posts, (u_number,))
     executor.shutdown()
@@ -40,5 +40,5 @@ def multi_create(users_count):
 
 if __name__ == '__main__':
     start = time()
-    multi_create(1000000)
+    multi_create(100000)
     print(time() - start)
