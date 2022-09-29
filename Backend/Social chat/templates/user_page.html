@@ -22,7 +22,7 @@
             <input type="submit" value="Найти">
         </form>
         <span style="color: orange">Лента новостей:</span>
-        {% for post in page.data() %}
+        {% for post in posts %}
         <div>Название поста: {{ post[0] }}</div>
         <div>Содержание поста:</div>
         <div>{{ post[1] }}</div>
@@ -39,13 +39,6 @@
             {% endif %}
         </div><br>
         {% endfor %}
-        {% if page.has_prev() %}
-            <a href="/user/{{ page.prev_page() }}/">&lt;&lt; Newer posts</a>
-        {% endif %} |
-        {% if page.has_next() %}
-            <a href="/user/{{ page.next_page() }}/">Older posts &gt;&gt;</a>
-        {% endif %}
-
     </div>
 
 {% endblock %}

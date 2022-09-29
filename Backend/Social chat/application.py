@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_admin import Admin
 
-import config
+from utils import config
 from database.base import db
 from database.posts.models import Posts
 from database.users.models import Users

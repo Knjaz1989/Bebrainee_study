@@ -42,8 +42,12 @@ def get_respondents(user: Users):
     return user.respondents
 
 
-def get_posts_by_raw(user: Users, search_text: str):
+def get_posts_by_raw(user: Users, search_text: str, offset: int, limit: int):
     ids_list = [user_.id for user_ in get_respondents(user)]
+    data_dict = {
+        'ids_list': ids_list, 'user_id': user.id, 'limit': limit,
+        'offset': offset
+    }
     raw = '''
         SELECT * FROM (
             SELECT p.title, p.post, p.post_type, p.created_at, p.user_id, \
@@ -67,18 +71,19 @@ def get_posts_by_raw(user: Users, search_text: str):
             ) 
             ORDER BY created_at DESC                             
         ) b
+        OFFSET :offset
+        LIMIT :limit
         '''
     if search_text and search_text.strip():
+        data_dict.update({'text': f'%{search_text}%'})
         return db.execute(
             f'''
             SELECT * FROM (
                 {raw}
             ) d
             WHERE post LIKE :text
-            ''', {'text': f'%{search_text}%', 'ids_list': ids_list,
-                  'user_id': user.id}
-        )
-    return db.execute(raw, {'ids_list': ids_list, 'user_id': user.id})
+            ''', data_dict)
+    return db.execute(raw, data_dict).all()
 
 
 # def get_posts_by_orm(user: Users, search_text: str):

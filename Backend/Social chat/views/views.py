@@ -7,7 +7,6 @@ from database.users.handlers import get_user_by_id, get_posts_by_raw, \
     get_subscribers, get_user_by_email, user_sign_up, get_respondents, \
     user_subscribe, user_unsubscribe
 from database.users.models import Users
-from utils import pagination
 from utils.tasks import create_report
 from utils.auth import login_required
 
@@ -32,10 +31,13 @@ class UserView(MethodView):
     def get(self, page=1):
         search_text = request.args.get('text')
         current_user = get_user_by_id(session['id'])
-        posts_query = get_posts_by_raw(current_user, search_text)
-        page = pagination.Paginator(posts_query, page, 50)
+        limit = 50
+        offset = limit * page + 1
+        posts_query = get_posts_by_raw(
+            current_user, search_text, offset, limit
+        )
         return render_template("user_page.html", user_name=session['username'],
-                               page=page
+                               posts=posts_query
                                )
 
 

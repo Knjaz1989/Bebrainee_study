@@ -17,7 +17,7 @@ python -m database.generation
 ```
 ## Run program
 ```python
-python -m run
+python -m application
 ```
 
 

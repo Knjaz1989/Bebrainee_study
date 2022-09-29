@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
 
-import config
+from utils import config
 from database.posts.models import Posts
 from database.users.models import Users
 
@@ -32,7 +32,7 @@ def create_user_and_posts(u_number):
 
 
 def multi_create(users_count):
-    executor = ProcessPoolExecutor(max_workers=4)
+    executor = ProcessPoolExecutor(max_workers=cpu_count() - 1)
     for u_number in range(1, users_count + 1):
         executor.map(create_user_and_posts, (u_number,))
     executor.shutdown()
