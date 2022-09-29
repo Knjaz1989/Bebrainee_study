@@ -19,7 +19,3 @@ python -m database.generation
 ```python
 python -m application
 ```
-
-
-## Time to get all posts (300000 items)
-![img.png](img.png)
