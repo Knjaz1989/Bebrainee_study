@@ -1,0 +1,200 @@
+body, html {
+    padding:0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-family: arial;
+}
+
+.hero-head {
+    position: fixed;
+    background: #2084b2;
+    width:100%;
+    padding:20px 0;
+}
+
+.container {
+    width:100%;
+    max-width:1200px;
+    margin:0 auto;
+}
+
+.navbar-end {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.navbar-end a {
+    text-transform: uppercase;
+    font-size: 17px;
+    color:#fff;
+    text-decoration:none;
+    margin:0 20px;
+}
+
+.navbar-end a:last-child {
+    margin-right:0;
+}
+
+.navbar-end a:first-child {
+    margin-left:0;
+}
+
+a:hover {
+text-decoration: underline;
+}
+
+.hero-body {
+    width:100%;
+    max-width:1200px;
+    margin:90px auto 40px;
+}
+
+input[type="submit" i] {
+    background:#2084b2;
+    color:#fff;
+    border: none;
+    height: 30px;
+    text-transform: uppercase;
+    padding: 0 20px;
+}
+
+.box form input {
+    width: 365px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+.box select {
+    width:365px;
+    margin-bottom:10px;
+}
+
+.box select{
+    height: 30px;
+    padding: 0 10px;
+}
+
+input[type="submit" i]:hover {
+    box-shadow: 4px 4px 7px #00000094;
+}
+
+input:not([type="image" i]) {
+    height: 30px;
+    padding: 0 10px;
+}
+
+input[type="checkbox" i] {
+    float: left;
+    width: auto !important;
+    height: auto;
+}
+
+.f-check {
+    text-align: start;
+}
+
+.search-form {
+    margin-bottom: 30px;
+}
+#search {
+    border-radius: 5px;
+}
+
+.posts_block {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.post, .subscribee {
+    box-sizing: border-box;
+    border: 2px solid #8d9393;
+    width: 294px;
+    padding: 5px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+}
+
+.post form, .subscribee form {
+    margin-top:15px;
+    margin-bottom: 8px;
+}
+
+.post:nth-child(4n) {
+    margin-right: 0;
+}
+
+form input {
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.main_title {
+    margin-bottom: 30px;
+    color: #d9712e;
+    font-size: 25px;
+    text-decoration: underline;
+}
+
+/*---------------pagination---------------------*/
+
+.pagination {
+  display: inline-block;
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: background-color .3s;
+  border: 1px solid #ddd;
+}
+
+.pagination a.active {
+  background-color: #4CAF50;
+  color: white;
+  border: 1px solid #4CAF50;
+}
+
+
+/*----------------------create form------------------------*/
+
+.form-main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-main-page {
+    border: 2px solid #8d9393;
+    border-radius: 10px;
+    /*background-color: #8d9393;*/
+    width: 500px;
+    height: 500px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/*----------------------------footer--------------------*/
+
+footer {
+    flex: 0 0 auto;
+    height: 64px;
+    background-color: #757373;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+footer div {
+    color: white;
+    font-size: 20px;
+}
+
+.is-fullheight {
+    flex: 1 0 auto;
+}

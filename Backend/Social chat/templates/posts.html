@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block nav %}
+    <a href="/user/" class="navbar-item">
+        Home
+    </a>
+    <a href="/create/" class="navbar-item">
+        Create post
+    </a>
+    <a href="/subscribe/" class="navbar-item">
+        Subscribes
+    </a>
+    <a href="/logout/" class="navbar-item">
+        Logout
+    </a>
+    <a href="/profile/" class="navbar-item">
+        Здравствуйте, {{ user_name }}
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="main_title">Мои посты:</div>
+    <div class="posts_block">
+        {% for post in posts %}
+            <div class="post">
+                <div>Название поста: {{ post.title }}</div>
+                <div>Содержание поста:</div>
+                <div>{{ post.post }}</div>
+                <div>Дата создания: {{ post.created_at }}</div>
+                <div>Тип поста: {{ post.post_type }}</div>
+                <form action="/get_posts/" method="post">
+                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                    <input type="submit" value="Удалить пост" />
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

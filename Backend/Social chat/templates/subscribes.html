@@ -4,27 +4,31 @@
     <a href="/user/" class="navbar-item">
         Home
     </a>
+    <a href="/get_posts/" class="navbar-item">
+        My posts
+    </a>
     <a href="/create/" class="navbar-item">
         Create post
     </a>
     <a href="/logout/" class="navbar-item">
         Logout
     </a>
-    <span style="color: blue" class="navbar-item">
+    <a href="/profile/" class="navbar-item">
         Здравствуйте, {{ user_name }}
-    </span>
+    </a>
 {% endblock %}
 
 {% block content %}
-     <div class="posts_block">
+    <div class="main_title">Мои подписки:</div>
+    <div class="subscribes">
         {% for respondent in respondents %}
-            Имя пользователя: {{ respondent.username }}
-            <form action="/unsubscribe/" method="post" >
-                <input type="hidden" name="other_user" value="{{ respondent.id }}">
-                <input type="submit" value="Отписаться" />
-            </form>
+            <div class="subscribee">
+                <div>Имя пользователя: {{ respondent.username }}</div>
+                <form action="/unsubscribe/" method="post" >
+                    <input type="hidden" name="other_user" value="{{ respondent.id }}">
+                    <input type="submit" value="Отписаться" />
+                </form>
+            </div>
         {% endfor %}
-
-
     </div>
 {% endblock %}

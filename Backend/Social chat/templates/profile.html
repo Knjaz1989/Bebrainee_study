@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block nav %}
+    <a href="/user/" class="navbar-item">
+        Home
+    </a>
+    <a href="/create/" class="navbar-item">
+        Create post
+    </a>
+    <a href="/subscribe/" class="navbar-item">
+        Subscribes
+    </a>
+    <a href="/logout/" class="navbar-item">
+        Logout
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="main_title">Мои профиль:</div>
+    <div class="profile-content">
+        <div>Имя: {{ user.username }}</div>
+        <div>Дата рождения:</div>
+        <div>Enail: {{ user.email }}</div>
+        <div>Город:</div>
+    </div>
+{% endblock %}

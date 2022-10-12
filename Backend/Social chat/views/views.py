@@ -2,7 +2,7 @@ from flask import render_template, request, session, redirect, url_for, flash
 from flask.views import MethodView
 from werkzeug.security import check_password_hash
 
-from database.posts.handlers import create_post
+from database.posts.handlers import create_post, get_own_posts, delete_post
 from database.users.handlers import get_user_by_id, get_posts_by_raw, \
     get_subscribers, get_user_by_email, user_sign_up, get_respondents, \
     user_subscribe, user_unsubscribe
@@ -32,12 +32,13 @@ class UserView(MethodView):
         search_text = request.args.get('text')
         current_user = get_user_by_id(session['id'])
         limit = 50
-        offset = limit * page + 1
+        offset = limit * page - 50
         posts_query = get_posts_by_raw(
             current_user, search_text, offset, limit
         )
         return render_template("user_page.html", user_name=session['username'],
-                               posts=posts_query
+                               posts=posts_query, limit=limit, offset=offset,
+                               page=page
                                )
 
 
@@ -51,6 +52,14 @@ class OtherUser(MethodView):
         return render_template("other_user_profile.html",
                                user_name=session['username'],
                                other_user=other_user, exists=exists)
+
+
+class Profile(MethodView):
+
+    @login_required
+    def get(self):
+        current_user = get_user_by_id(session['id'])
+        return render_template("profile.html", user=current_user)
 
 
 class Login(MethodView):
@@ -111,6 +120,21 @@ class Create(MethodView):
         flash("Пост успешно создан", 'post_create')
         create_report.delay(session['id'])
         return render_template("create.html", user_name=session['username'])
+
+
+class Posts(MethodView):
+
+    @login_required
+    def get(self):
+        posts = get_own_posts(session['id'])
+        return render_template("posts.html", posts=posts,
+                               user_name=session['username'])
+
+    @login_required
+    def post(self):
+        post_id = int(request.form['post_id'])
+        delete_post(post_id)
+        return redirect(url_for('get_posts'))
 
 
 class Subscribe(MethodView):

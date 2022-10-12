@@ -50,26 +50,25 @@ def get_posts_by_raw(user: Users, search_text: str, offset: int, limit: int):
     }
     raw = '''
         SELECT * FROM (
-            SELECT p.title, p.post, p.post_type, p.created_at, p.user_id, \
-            u.username 
+            SELECT p.title, p.post, p.post_type, p.created_at, p.user_id, u.username
             FROM posts as p
             JOIN users as u on p.user_id = u.id
             WHERE p.user_id = ANY(:ids_list) AND p.post_type = 'public'
             ORDER BY created_at DESC
             ) a
-        UNION ALL 
+        UNION ALL
         SELECT * FROM (
             SELECT p.title, p.post, p.post_type, p.created_at, p.user_id, \
-            u.username 
+            u.username
             FROM posts as p
             JOIN users as u on p.user_id = u.id
-            WHERE p.user_id <> :user_id 
+            WHERE p.user_id <> :user_id
             AND (
                 (p.post_type = 'private' AND p.user_id = ANY(:ids_list))
-                OR 
+                OR
                 p.user_id <> ALL(:ids_list)
-            ) 
-            ORDER BY created_at DESC                             
+            )
+            ORDER BY created_at DESC
         ) b
         OFFSET :offset
         LIMIT :limit
@@ -82,25 +81,5 @@ def get_posts_by_raw(user: Users, search_text: str, offset: int, limit: int):
                 {raw}
             ) d
             WHERE post LIKE :text
-            ''', data_dict)
+            ''', data_dict).all()
     return db.execute(raw, data_dict).all()
-
-
-# def get_posts_by_orm(user: Users, search_text: str):
-#     posts_ = db.query(Posts).filter(
-#         Posts.user_id.in_(ids_list), Posts.post_type == 'public'
-#     ).order_by(desc(Posts.created_at)).union_all(
-#         db.query(Posts).filter(
-#             Posts.user_id != user.id,
-#             or_(
-#                 and_(
-#                     Posts.user_id.in_(ids_list),
-#                     Posts.post_type == 'private'
-#                 ),
-#                 Posts.user_id.notin_(ids_list)
-#             )
-#         ).order_by(desc(Posts.created_at))
-#     )
-#     if search_text and search_text.strip():
-#         posts_query = posts_query.filter(Posts.post.ilike(f"%{search_text}%"))
-#     return posts_

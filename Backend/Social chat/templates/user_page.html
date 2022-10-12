@@ -4,41 +4,56 @@
     <a href="/create/" class="navbar-item">
         Create post
     </a>
+    <a href="/get_posts/" class="navbar-item">
+        My posts
+    </a>
     <a href="/subscribe/" class="navbar-item">
         Subscribes
     </a>
     <a href="/logout/" class="navbar-item">
         Logout
     </a>
-    <span style="color: blue" class="navbar-item">
+    <a href="/profile/" class="navbar-item">
         Здравствуйте, {{ user_name }}
-    </span>
+    </a>
 {% endblock %}
 
 {% block content %}
+    <form class="search-form" action="/user/">
+        <label for="search">Поиск совпадений в постах</label><br>
+        <input id="search" type="search" name="text">
+        <input type="submit" value="Найти">
+    </form>
+    <div class="main_title">Лента новостей:</div>
     <div class="posts_block">
-        <form action="/user/">
-            <input type="search" name="text">
-            <input type="submit" value="Найти">
-        </form>
-        <span style="color: orange">Лента новостей:</span>
         {% for post in posts %}
-        <div>Название поста: {{ post[0] }}</div>
-        <div>Содержание поста:</div>
-        <div>{{ post[1] }}</div>
-        <div>Дата создания: {{ post[3] }}</div>
-        <div>
-            Владелец поста:
-            {% if post[2] == 'private' %}
-                anonimous
-            {% else %}
-                {{ post[5] }}
-                <form action="/other_user/{{ post[4] }}/">
-                    <input type="submit" value="Посмотреть профиль" />
-                </form>
-            {% endif %}
-        </div><br>
+            <div class="post">
+                <div>Название поста: {{ post[0] }}</div>
+                <div>Содержание поста:</div>
+                <div>{{ post[1] }}</div>
+                <div>Дата создания: {{ post[3] }}</div>
+                <div>
+                    Владелец поста:
+                    {% if post[2] == 'private' %}
+                        anonimous
+                    {% else %}
+                        {{ post[5] }}
+                        <form action="/other_user/{{ post[4] }}/">
+                            <input type="submit" value="Посмотреть профиль" />
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
         {% endfor %}
+    </div>
+    <p>Next/Previous</p>
+    <div class="pagination">
+        {% if offset != 0 %}
+            <a href="/user/{{ page - 1 }}/">❮</a>
+        {% endif %}
+        {% if posts | length == limit %}
+            <a href="/user/{{ page + 1 }}/">❯</a>
+        {% endif %}
     </div>
 
 {% endblock %}
