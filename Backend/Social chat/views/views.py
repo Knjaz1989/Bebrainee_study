@@ -29,12 +29,12 @@ class UserView(MethodView):
 
     @login_required
     def get(self, page=1):
-        search_text = request.args.get('text')
+        search_text = request.args.get('text', '')
         current_user = get_user_by_id(session['id'])
         limit = 50
         offset = limit * page - 50
         posts_query = get_posts_by_raw(
-            current_user, search_text, offset, limit
+            current_user, offset, limit, search_text
         )
         return render_template("user_page.html", user_name=session['username'],
                                posts=posts_query, limit=limit, offset=offset,
