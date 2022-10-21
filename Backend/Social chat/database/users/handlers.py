@@ -45,6 +45,8 @@ def get_respondents(user: Users):
 def get_posts_by_raw(
         user: Users, offset: int, limit: int, search_text: str
 ):
+    if not search_text:
+        search_text = ''
     ids_list = [user_.id for user_ in get_respondents(user)]
     data_dict = {
         'ids_list': ids_list, 'user_id': user.id, 'limit': limit,
