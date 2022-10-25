@@ -31,8 +31,8 @@ class UserView(MethodView):
     def get(self, page=1):
         search_text = request.args.get('text')
         current_user = get_user_by_id(session['id'])
-        limit = 50
-        offset = limit * page - 50
+        limit = 5
+        offset = limit * page - limit
         posts_query = get_posts_by_raw(
             current_user, offset, limit, search_text
         )

@@ -40,5 +40,5 @@ def multi_create(users_count, step=50):
 
 if __name__ == '__main__':
     start = time()
-    multi_create(1000, step=50)
+    multi_create(100, step=50)
     print(time() - start)
